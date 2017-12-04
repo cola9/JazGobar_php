@@ -19,7 +19,7 @@
                 $mesto_id=$row['id'];
             }
         }
-        $sql_query2 = "SELECT * FROM vreme WHERE mesto_id = '$mesto_id' ORDER BY datum LIMIT 1;";//limit 1 OFFSET 2(skipa 2)
+        $sql_query2 = "SELECT * FROM vreme WHERE mesto_id = '$mesto_id' ORDER BY datum DESC LIMIT 1;";//limit 1 OFFSET 2(skipa 2)
         $result = mysqli_query($con, $sql_query2);
         if(mysqli_num_rows($result) > 0 ){
             $row = mysqli_fetch_assoc($result);
@@ -33,8 +33,15 @@
             array_push($result,array('pritisk'=>$pritisk));
     
             echo json_encode(array("result"=>$result));
-            mysqli_close($con);
         }
+       if($razlika>10){
+	    $statement = mysqli_prepare($con, "INSERT INTO mesta (lat, lon) VALUES (?, ?)");
+	    $fLat=(float) $lat;
+	    $fLon=(float) $lon;
+	    mysqli_stmt_bind_param($statement, "dd", $fLat, $fLon);
+	    mysqli_stmt_execute($statement);
+       }
+        mysqli_close($con);
     }else{
         $response["success"] = false;  
         echo json_encode($response);
