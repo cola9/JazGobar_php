@@ -28,15 +28,18 @@
         $owm = new OpenWeatherMap('53d3e9d10a6ecc145d1f52b15503af75');
 
         try {
-            $weather = $owm->getWeather($row['ime'], $units, $lang);
+            $weather = $owm->getWeather(array('lat' => $row['lat'], 'lon' => $row['lon']), $units, $lang);
         } catch(OWMException $e) {
             echo 'OpenWeatherMap exception: ' . $e->getMessage() . ' (Code ' . $e->getCode() . ').';
         } catch(\Exception $e) {
             echo 'General exception: ' . $e->getMessage() . ' (Code ' . $e->getCode() . ').';
         }
+        $temp = $weather->temperature->getValue();
+        $pritisk = $weather->pressure->getValue();
+        $vlaznost = $weather->humidity->getValue();
 		$statement = mysqli_prepare($con, "INSERT INTO vreme (mesto_id, temperatura, pritisk, vlaznost) VALUES (?, ?, ?, ?)");
-		mysqli_stmt_bind_param($statement, "isss", $row['id'], $weather->temperature, $weather->pressure, $weather->humidity);
+		mysqli_stmt_bind_param($statement, "isss", $row['id'], $temp, $pritisk, $vlaznost);
 		mysqli_stmt_execute($statement);
-        echo $row['ime'].' '.$weather->temperature.' pritisk:'.$weather->pressure.' vlaznost:'.$weather->humidity."<br/>";
+        echo $row['ime'].' '.$weather->temperature->getValue().' pritisk:'.$weather->pressure->getValue().' vlaznost:'.$weather->humidity->getValue()."<br/>";
 	}
  ?>
